@@ -1,0 +1,23 @@
+{
+    "name": "tsufeki/react-filesystem-monitor",
+    "description": "Asynchronous filesystem monitor based on React PHP",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "tsufeki",
+            "email": "tsufeki@ymail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "ReactFilesystemMonitor\\": "src/ReactFilesystemMonitor/"
+        }
+    },
+    "require": {
+        "evenement/evenement": "^2.0",
+        "react/event-loop": "^0.4.2",
+        "react/child-process": "^0.4.1",
+        "react/stream": "^0.4.4",
+        "tsufeki/react-line-stream": "dev-master"
+    }
+}
