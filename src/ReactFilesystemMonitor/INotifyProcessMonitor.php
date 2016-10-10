@@ -29,6 +29,11 @@ class INotifyProcessMonitor extends EventEmitter implements FilesystemMonitorInt
     /**
      * @var string
      */
+    private $inotifywaitCmd;
+
+    /**
+     * @var string
+     */
     private $path;
 
     /**
@@ -53,6 +58,7 @@ class INotifyProcessMonitor extends EventEmitter implements FilesystemMonitorInt
 
     public function __construct($path, array $events = null, array $options = [])
     {
+        $this->inotifywaitCmd = isset($options['inotifywait_cmd']) ? $options['inotifywait_cmd'] : 'inotifywait';
         $this->path = realpath($path);
 
         if ($events === null) {
@@ -71,7 +77,7 @@ class INotifyProcessMonitor extends EventEmitter implements FilesystemMonitorInt
         }
 
         $cmd = sprintf("%s -m -r -c %s %s",
-            escapeshellarg(isset($options['inotifywait_cmd']) ? $options['inotifywait_cmd'] : 'inotifywait'),
+            escapeshellarg($this->inotifywaitCmd),
             $eventsCmd,
             escapeshellarg($this->path)
         );
