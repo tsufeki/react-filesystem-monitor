@@ -76,7 +76,7 @@ class INotifyProcessMonitor extends EventEmitter implements FilesystemMonitorInt
             }
         }
 
-        $cmd = sprintf("%s -m -r -c %s %s",
+        $cmd = sprintf("exec %s -m -r -c %s %s",
             escapeshellarg($this->inotifywaitCmd),
             $eventsCmd,
             escapeshellarg($this->path)
