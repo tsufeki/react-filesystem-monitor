@@ -56,6 +56,11 @@ class INotifyProcessMonitor extends EventEmitter implements FilesystemMonitorInt
      */
     private $stderr;
 
+    /**
+     * @var string
+     */
+    private $stderrLog;
+
     public function __construct($path, array $events = null, array $options = [])
     {
         $this->inotifywaitCmd = isset($options['inotifywait_cmd']) ? $options['inotifywait_cmd'] : 'inotifywait';
@@ -82,10 +87,11 @@ class INotifyProcessMonitor extends EventEmitter implements FilesystemMonitorInt
             escapeshellarg($this->path)
         );
 
-        $this->process = new Process($cmd);
+        $this->stderrLog = '';
+        $this->process = new Process($cmd, null, ['LC_ALL' => 'C']);
         Util::forwardEvents($this->process, $this, ['error']);
         $this->process->on('exit', function () use ($cmd) {
-            $this->emit('error', [new \Exception(sprintf('"%s" exited', $cmd))]);
+            $this->emit('error', [new \Exception(sprintf('inotifywait exited: %s', $cmd, $this->stderrLog))]);
         });
 
         $this->process->start($loop);
@@ -93,8 +99,11 @@ class INotifyProcessMonitor extends EventEmitter implements FilesystemMonitorInt
         $this->stderr = new LineStream($this->process->stderr);
 
         $this->stderr->on('line', function ($line) {
-            if (trim($line) === 'Watches established.') {
+            $line = trim($line);
+            if ($line === 'Watches established.') {
                 $this->emit('start');
+            } elseif (explode('.', $line)[0] !== 'Setting up watches') {
+                $this->stderrLog .= ' ' . $line;
             }
         });
 
