@@ -18,6 +18,6 @@
         "react/event-loop": "^0.4.2",
         "react/child-process": "^0.4.1",
         "react/stream": "^0.4.4",
-        "tsufeki/react-line-stream": "dev-master"
+        "tsufeki/react-line-stream": "^0.1.0"
     }
 }
