@@ -91,7 +91,7 @@ class INotifyProcessMonitor extends EventEmitter implements FilesystemMonitorInt
         $this->process = new Process($cmd, null, ['LC_ALL' => 'C']);
         Util::forwardEvents($this->process, $this, ['error']);
         $this->process->on('exit', function () use ($cmd) {
-            $this->emit('error', [new \Exception(sprintf('inotifywait exited: %s', $cmd, $this->stderrLog))]);
+            $this->emit('error', [new \Exception(sprintf('inotifywait exited: %s', $this->stderrLog))]);
         });
 
         $this->process->start($loop);
