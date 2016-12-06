@@ -7,9 +7,10 @@ use React\EventLoop\LoopInterface;
 
 /**
  * @event start
+ * @event stop
  * @event error
  *
- * @event all
+ * @event all (string $path, bool $isDir, string $event, FilesystemMonitorInterface $monitor)
  *
  * @event access
  * @event attribute
@@ -35,5 +36,5 @@ interface FilesystemMonitorInterface extends EventEmitterInterface
      */
     public function start(LoopInterface $loop);
 
-    public function close();
+    public function stop();
 }

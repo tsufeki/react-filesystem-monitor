@@ -110,10 +110,11 @@ class INotifyProcessMonitor extends EventEmitter implements FilesystemMonitorInt
         $this->stdout->on('line', [$this, 'handleEvent']);
     }
 
-    public function close()
+    public function stop()
     {
         $this->process->removeAllListeners('exit');
         $this->process->terminate();
+        $this->emit('stop');
     }
 
     /**
@@ -127,12 +128,13 @@ class INotifyProcessMonitor extends EventEmitter implements FilesystemMonitorInt
         $path = (isset($fields[0]) ? $fields[0] : '') . (isset($fields[2]) ? $fields[2] : '');
         $path = rtrim($path, '/');
         $events = explode(',', isset($fields[1]) ? $fields[1] : '');
+        $isDir = in_array('ISDIR', $events);
 
         foreach ($events as $inotifyEvent) {
             if (isset(self::EVENT_MAP[$inotifyEvent])) {
                 $event = self::EVENT_MAP[$inotifyEvent];
-                $this->emit($event, [$path, $event, $this]);
-                $this->emit('all', [$path, $event, $this]);
+                $this->emit($event, [$path, $isDir, $event, $this]);
+                $this->emit('all', [$path, $isDir, $event, $this]);
             }
         }
     }
