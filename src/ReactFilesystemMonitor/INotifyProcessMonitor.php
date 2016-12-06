@@ -61,6 +61,11 @@ class INotifyProcessMonitor extends EventEmitter implements FilesystemMonitorInt
      */
     private $stderrLog;
 
+    /**
+     * @param string        $path
+     * @param array|null    $events
+     * @param array         $options
+     */
     public function __construct($path, array $events = null, array $options = [])
     {
         $this->inotifywaitCmd = isset($options['inotifywait_cmd']) ? $options['inotifywait_cmd'] : 'inotifywait';

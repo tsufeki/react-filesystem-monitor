@@ -25,13 +25,6 @@ use React\EventLoop\LoopInterface;
 interface FilesystemMonitorInterface extends EventEmitterInterface
 {
     /**
-     * @param string        $path
-     * @param array|null    $events
-     * @param array         $options
-     */
-    public function __construct($path, array $events = null, array $options = []);
-
-    /**
      * @param LoopInterface $loop
      */
     public function start(LoopInterface $loop);
