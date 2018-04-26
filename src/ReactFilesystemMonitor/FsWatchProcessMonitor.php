@@ -66,13 +66,13 @@ class FsWatchProcessMonitor extends EventEmitter implements FilesystemMonitorInt
     private $batchEvents = [];
 
     /**
-     * @param string        $path
-     * @param array|null    $events
-     * @param array         $options
+     * @param string     $path
+     * @param array|null $events
+     * @param array      $options
      */
-    public function __construct($path, array $events = null, array $options = [])
+    public function __construct(string $path, array $events = null, array $options = [])
     {
-        $this->fswatchCmd = isset($options['fswatch_cmd']) ? $options['fswatch_cmd'] : 'fswatch';
+        $this->fswatchCmd = $options['fswatch_cmd'] ?? 'fswatch';
         $this->path = realpath($path);
 
         if ($events === null) {
@@ -103,7 +103,7 @@ class FsWatchProcessMonitor extends EventEmitter implements FilesystemMonitorInt
             }
         }
 
-        $cmd = sprintf("exec %s %s %s",
+        $cmd = sprintf('exec %s %s %s',
             escapeshellarg($this->fswatchCmd),
             implode(' ', array_unique($flags)),
             escapeshellarg($this->path)
@@ -145,7 +145,7 @@ class FsWatchProcessMonitor extends EventEmitter implements FilesystemMonitorInt
      *
      * @param string $line
      */
-    public function handleEvent($line)
+    public function handleEvent(string $line)
     {
         $line = trim($line, "\0");
         if ($line === self::BATCH_END) {
@@ -154,7 +154,7 @@ class FsWatchProcessMonitor extends EventEmitter implements FilesystemMonitorInt
             return;
         }
 
-        list($eventsString, $path) = explode(":", $line, 2);
+        list($eventsString, $path) = explode(':', $line, 2);
         $events = explode(' ', $eventsString);
         $path = rtrim($path, '/');
         foreach ($events as $event) {
