@@ -159,9 +159,6 @@ class FsWatchProcessMonitor extends EventEmitter implements FilesystemMonitorInt
         $path = rtrim($path, '/');
         foreach ($events as $event) {
             $this->batchEvents[$path][$event] = true;
-            if ($event === 'Overflow') {
-                $this->emit('error', [new \RuntimeException('fswatch overflow')]);
-            }
         }
     }
 
@@ -172,11 +169,15 @@ class FsWatchProcessMonitor extends EventEmitter implements FilesystemMonitorInt
 
         foreach ($batchEvents as $path => $events) {
             $isDir = isset($events['IsDir']);
+            unset($events['IsDir']);
+
             foreach ($events as $fswEvent => $_) {
-                if (isset(self::EVENT_MAP[$fswEvent])) {
-                    $event = self::EVENT_MAP[$fswEvent];
+                $event = self::EVENT_MAP[$fswEvent] ?? null;
+                if ($event !== null) {
                     $this->emit($event, [$path, $isDir, $event, $this]);
                     $this->emit('all', [$path, $isDir, $event, $this]);
+                } else {
+                    $this->emit('error', [new \RuntimeException('Unrecognized fswatch event: ' . $fswEvent)]);
                 }
             }
         }
