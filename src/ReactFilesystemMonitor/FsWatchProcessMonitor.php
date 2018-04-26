@@ -121,16 +121,15 @@ class FsWatchProcessMonitor extends EventEmitter implements FilesystemMonitorInt
         $this->stderr = new LineStream($this->process->stderr);
 
         $this->batchEvents = [];
+
         $this->stderr->on('line', function ($line) {
             $line = trim($line);
-            if ($line === 'Watches established.') {
-                $this->emit('start');
-            } elseif (explode('.', $line)[0] !== 'Setting up watches') {
-                $this->stderrLog .= ' ' . $line;
-            }
+            $this->stderrLog .= ' ' . $line;
         });
 
         $this->stdout->on('line', [$this, 'handleEvent']);
+
+        $this->emit('start');
     }
 
     public function stop()
