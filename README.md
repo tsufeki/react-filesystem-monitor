@@ -3,15 +3,20 @@ React Filesystem Monitor
 
 Asynchronous filesystem monitor based on React PHP.
 
-Currently there is one implementation available:
+Currently these implementations are available:
 
-* `INotifyProcessMonitor` based on `inotifywait` Linux command line utility.
+* `INotifyProcessMonitor` based on [`inotifywait`][inotify] command line utility, used on Linux.
+* `FsWatchProcessMonitor` based on [`fswatch`][fswatch], used on OSX.
+
+[inotify]: https://github.com/rvoicilas/inotify-tools/wiki
+[fswatch]: http://emcrisostomo.github.io/fswatch/
 
 All implementations' constructors take two arguments: a path to watch (file or
 recursively watched directory) and optional array of event to watch for
 (defaults to all events).
 
 Available events:
+
 * `access` i.e. read
 * `attribute` - modification of permissions, timestamps etc.
 * `close`
@@ -22,21 +27,27 @@ Available events:
   Only those for paths inside watched dir are fired.
 * `open`
 
-These event pass as arguments path which triggered it and event name.
+These events pass as arguments: path which triggered it, boolean indicating
+whether the path is a directory, event name and monitor instance itself.
 
 Additional events:
+
 * `all` - fired for all events above
 * `start` - fired when watchers finished setting up
 * `error`
+
+Please note that not all backends support all events. `fswatch` won't emit
+`open` and `close` events; also `start` is fired immediately after process starts
+instead of when setup is complete.
 
 Example
 -------
 ```php
 $loop = React\EventLoop\Factory::create();
 
-$monitor = new ReactFilesystemMonitor\INotifyProcessMonitor('foo/bar', ['modify', 'delete']);
-$monitor->on('all', function ($path, $event) {
-    echo sprintf("%s:  %s\n", $event, $path);
+$monitor = (new ReactFilesystemMonitor\FilesystemMonitorFactory())->create('foo/bar', ['modify', 'delete']);
+$monitor->on('all', function ($path, $isDir, $event, $monitor) {
+    echo sprintf("%s:  %s%s\n", $event, $path, $isDir ? ' [dir]' : '');
 });
 $monitor->start($loop);
 
