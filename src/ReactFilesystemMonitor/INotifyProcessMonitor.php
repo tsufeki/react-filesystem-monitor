@@ -62,13 +62,13 @@ class INotifyProcessMonitor extends EventEmitter implements FilesystemMonitorInt
     private $stderrLog;
 
     /**
-     * @param string        $path
-     * @param array|null    $events
-     * @param array         $options
+     * @param string     $path
+     * @param array|null $events
+     * @param array      $options
      */
-    public function __construct($path, array $events = null, array $options = [])
+    public function __construct(string $path, array $events = null, array $options = [])
     {
-        $this->inotifywaitCmd = isset($options['inotifywait_cmd']) ? $options['inotifywait_cmd'] : 'inotifywait';
+        $this->inotifywaitCmd = $options['inotifywait_cmd'] ?? 'inotifywait';
         $this->path = realpath($path);
 
         if ($events === null) {
@@ -86,7 +86,7 @@ class INotifyProcessMonitor extends EventEmitter implements FilesystemMonitorInt
             }
         }
 
-        $cmd = sprintf("exec %s -m -r -c %s %s",
+        $cmd = sprintf('exec %s -m -r -c %s %s',
             escapeshellarg($this->inotifywaitCmd),
             $eventsCmd,
             escapeshellarg($this->path)
@@ -96,7 +96,7 @@ class INotifyProcessMonitor extends EventEmitter implements FilesystemMonitorInt
         $this->process = new Process($cmd, null, ['LC_ALL' => 'C']);
         Util::forwardEvents($this->process, $this, ['error']);
         $this->process->on('exit', function () {
-            $this->emit('error', [new \Exception(sprintf('inotifywait exited: %s', $this->stderrLog))]);
+            $this->emit('error', [new \RuntimeException(sprintf('inotifywait exited: %s', $this->stderrLog))]);
         });
 
         $this->process->start($loop);
@@ -127,12 +127,12 @@ class INotifyProcessMonitor extends EventEmitter implements FilesystemMonitorInt
      *
      * @param string $line
      */
-    public function handleEvent($line)
+    public function handleEvent(string $line)
     {
         $fields = str_getcsv($line);
-        $path = (isset($fields[0]) ? $fields[0] : '') . (isset($fields[2]) ? $fields[2] : '');
+        $path = ($fields[0] ?? '') . ($fields[2] ?? '');
         $path = rtrim($path, '/');
-        $events = explode(',', isset($fields[1]) ? $fields[1] : '');
+        $events = explode(',', $fields[1] ?? '');
         $isDir = in_array('ISDIR', $events);
 
         foreach ($events as $inotifyEvent) {
